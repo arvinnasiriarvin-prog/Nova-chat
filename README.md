@@ -1,1 +1,87 @@
-# Nova-chat
+# Nova-chat<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOVA CHAT</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Tahoma,sans-serif;
+ background:#101020;
+ color:white;
+ display:flex;
+ flex-direction:column;
+ height:100vh;
+}
+header{
+ background:#211b42;
+ padding:20px;
+ text-align:center;
+ font-size:25px;
+ font-weight:bold;
+ color:#b99aff;
+}
+#messages{
+ flex:1;
+ overflow:auto;
+ padding:15px;
+}
+.message{
+ padding:13px;
+ margin:10px 0;
+ border-radius:15px;
+ max-width:85%;
+ line-height:1.8;
+}
+.user{background:#6846b9;margin-right:auto}
+.bot{background:#292943;margin-left:auto}
+footer{
+ display:flex;
+ padding:12px;
+ gap:8px;
+ background:#211b42;
+}
+input{
+ flex:1;
+ padding:14px;
+ border:0;
+ border-radius:12px;
+ background:#34344c;
+ color:white;
+ outline:none;
+}
+button{
+ background:#8055e8;
+ color:white;
+ border:0;
+ border-radius:12px;
+ padding:12px 18px;
+}
+</style>
+</head>
+<body>
+<header>✨ NOVA CHAT</header>
+<div id="messages">
+<div class="message bot">سلام! من نوا هستم. چطور می‌تونم کمکت کنم؟</div>
+</div>
+<footer>
+<input id="input" placeholder="پیامت رو بنویس...">
+<button onclick="sendMessage()">ارسال</button>
+</footer>
+<script>
+function sendMessage(){
+ const input=document.getElementById("input");
+ const text=input.value.trim();
+ if(!text)return;
+ const box=document.getElementById("messages");
+ box.innerHTML+=`<div class="message user"></div>`;
+ box.lastElementChild.textContent=text;
+ box.innerHTML+=`<div class="message bot">پیامت دریافت شد! برای پاسخ هوشمند باید سرور هوش مصنوعی متصل شود.</div>`;
+ input.value="";
+ box.scrollTop=box.scrollHeight;
+}
+</script>
+</body>
+</html>
