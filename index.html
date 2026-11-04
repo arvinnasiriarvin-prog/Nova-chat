@@ -41,6 +41,7 @@ header{
  max-width:85%;
  line-height:1.8;
  overflow-wrap:anywhere;
+ white-space:pre-wrap;
 }
 .user{background:#6846b9;margin-right:auto}
 .bot{background:#292943;margin-left:auto}
@@ -93,69 +94,143 @@ let history = [];
 function saveHistory(){
  try{
   localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
- }catch(error){
-  alert("ذخیره تاریخچه امکان‌پذیر نیست.");
- }
+ }catch(e){}
 }
 
-function addMessage(type, text){
- const message = document.createElement("div");
- message.className = "message " + type;
- message.textContent = text;
- box.appendChild(message);
+function addMessage(type,text){
+ const div = document.createElement("div");
+ div.className = "message " + type;
+ div.textContent = text;
+ box.appendChild(div);
  box.scrollTop = box.scrollHeight;
 }
 
 function loadHistory(){
  try{
   history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  if(!Array.isArray(history)) history = [];
- }catch(error){
-  history = [];
+  if(!Array.isArray(history)) history=[];
+ }catch(e){
+  history=[];
  }
 
- if(history.length === 0){
-  history = [{
+ if(history.length===0){
+  history=[{
    type:"bot",
-   text:"سلام! من آینو هستم. به INOW CHAT خوش اومدی! ✨"
+   text:"سلام! من INOW هستم. چطور می‌تونم کمکت کنم؟ ✨"
   }];
   saveHistory();
  }
 
- history.forEach(item => addMessage(item.type, item.text));
+ history.forEach(m=>addMessage(m.type,m.text));
+}
+
+function normalize(text){
+ return text
+ .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+ .replace(/ي/g,"ی")
+ .replace(/ك/g,"ک")
+ .trim()
+ .toLowerCase();
+}
+
+function calculate(text){
+ let expression = text
+ .replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+ .replace(/×/g,"*")
+ .replace(/÷/g,"/")
+ .replace(/,/g,".");
+
+ expression=expression
+ .replace(/^(حساب کن|محاسبه کن|جواب)\s*/,"")
+ .trim();
+
+ if(!/^[0-9+\-*/().%\s.]+$/.test(expression)) return null;
+
+ try{
+  const result = Function('"use strict";return ('+expression+')')();
+
+  if(typeof result!=="number" || !Number.isFinite(result)) return null;
+
+  return "جواب محاسبه: "+Number(result.toFixed(8));
+ }catch(e){
+  return null;
+ }
+}
+
+function getAnswer(raw){
+ const text=normalize(raw);
+
+ if(/^(سلام|سلامم|درود|hi|hello)/.test(text)){
+  return "سلام! خوش اومدی! ✨ چه کاری از دستم برمیاد؟";
+ }
+
+ if(text.includes("خوبی") || text.includes("حالت چطوره")){
+  return "ممنون که پرسیدی! من آماده‌ام کمکت کنم. تو چطوری؟ 😊";
+ }
+
+ if(text.includes("اسم") && (text.includes("تو") || text.includes("چیه"))){
+  return "اسم من INOW هست؛ دستیار هوشمند تو! 🤖";
+ }
+
+ if(text.includes("ممنون") || text.includes("مرسی")){
+  return "خواهش می‌کنم! هر وقت کمکی خواستی من آماده‌ام. 🌟";
+ }
+
+ if(text.includes("خداحافظ") || text.includes("فعلا")){
+  return "فعلاً! امیدوارم روز خوبی داشته باشی. 👋";
+ }
+
+ if(text.includes("چه کار") && text.includes("میتونی")){
+  return "می‌تونم در محاسبات ساده، احوال‌پرسی و راهنمایی‌های اولیه کمکت کنم. قابلیت‌های بیشتری هم در راهه!";
+ }
+
+ if(/[0-9۰-۹]/.test(raw)){
+  const result=calculate(raw);
+  if(result) return result;
+ }
+
+ if(text.includes("هوش مصنوعی")){
+  return "هوش مصنوعی فناوری‌ایه که به کامپیوترها کمک می‌کنه بعضی کارهای هوشمندانه مثل تحلیل اطلاعات و پاسخ‌گویی رو انجام بدن.";
+ }
+
+ if(text.includes("کمک")){
+  return "حتماً! سؤالت رو واضح برام بنویس تا راهنمایی‌ات کنم. 😊";
+ }
+
+ return "سؤال جالبیه! هنوز مغز هوش مصنوعی آنلاین به من متصل نشده. این قابلیت در مراحل بعدی اضافه می‌شه. 🧠";
 }
 
 function sendMessage(){
- const text = input.value.trim();
- if(!text) return;
+ const text=input.value.trim();
+ if(!text)return;
 
- history.push({type:"user", text:text});
- addMessage("user", text);
+ history.push({type:"user",text});
+ addMessage("user",text);
 
- const answer = "پیامت دریافت شد! برای پاسخ هوشمند باید مغز هوش مصنوعی به سرور متصل شود.";
+ const answer=getAnswer(text);
 
- history.push({type:"bot", text:answer});
- addMessage("bot", answer);
+ history.push({type:"bot",text:answer});
+ addMessage("bot",answer);
 
  saveHistory();
- input.value = "";
+ input.value="";
 }
 
 function clearHistory(){
- if(!confirm("مطمئنی می‌خوای تمام گفتگوها پاک بشن؟")) return;
+ if(!confirm("تمام گفتگوها پاک بشن؟"))return;
 
- history = [{
+ history=[{
   type:"bot",
-  text:"سلام! من آینو هستم. به INOW CHAT خوش اومدی! ✨"
+  text:"سلام! من INOW هستم. چطور می‌تونم کمکت کنم؟ ✨"
  }];
 
  saveHistory();
- box.innerHTML = "";
- addMessage("bot", history[0].text);
+ box.innerHTML="";
+ addMessage("bot",history[0].text);
 }
 
-input.addEventListener("keydown", function(event){
- if(event.key === "Enter") sendMessage();
+input.addEventListener("keydown",e=>{
+ if(e.key==="Enter")sendMessage();
 });
 
 loadHistory();
