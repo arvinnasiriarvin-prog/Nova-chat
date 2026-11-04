@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NOVA CHAT</title>
+<meta name="theme-color" content="#101020">
+<meta name="description" content="INOW CHAT - همراه هوشمند شما">
+<title>INOW CHAT</title>
+
 <style>
 *{box-sizing:border-box}
+
 body{
  margin:0;
  font-family:Tahoma,sans-serif;
@@ -15,6 +19,7 @@ body{
  flex-direction:column;
  height:100vh;
 }
+
 header{
  background:#211b42;
  padding:20px;
@@ -23,28 +28,42 @@ header{
  font-weight:bold;
  color:#b99aff;
 }
+
 #messages{
  flex:1;
  overflow:auto;
  padding:15px;
 }
+
 .message{
  padding:13px;
  margin:10px 0;
  border-radius:15px;
  max-width:85%;
  line-height:1.8;
+ overflow-wrap:anywhere;
 }
-.user{background:#6846b9;margin-right:auto}
-.bot{background:#292943;margin-left:auto}
+
+.user{
+ background:#6846b9;
+ margin-right:auto;
+}
+
+.bot{
+ background:#292943;
+ margin-left:auto;
+}
+
 footer{
  display:flex;
  padding:12px;
  gap:8px;
  background:#211b42;
 }
+
 input{
  flex:1;
+ min-width:0;
  padding:14px;
  border:0;
  border-radius:12px;
@@ -52,36 +71,66 @@ input{
  color:white;
  outline:none;
 }
+
 button{
  background:#8055e8;
  color:white;
  border:0;
  border-radius:12px;
  padding:12px 18px;
+ cursor:pointer;
+}
+
+button:active{
+ opacity:.8;
 }
 </style>
 </head>
+
 <body>
-<header>✨ NOVA CHAT</header>
+
+<header>✨ INOW CHAT</header>
+
 <div id="messages">
-<div class="message bot">سلام! من نوا هستم. چطور می‌تونم کمکت کنم؟</div>
+<div class="message bot">
+سلام! من آینو هستم؛ به INOW CHAT خوش اومدی! ✨
+چطور می‌تونم کمکت کنم؟
 </div>
+</div>
+
 <footer>
-<input id="input" placeholder="پیامت رو بنویس...">
+<input id="input" placeholder="پیامت رو بنویس..." autocomplete="off">
 <button onclick="sendMessage()">ارسال</button>
 </footer>
+
 <script>
 function sendMessage(){
  const input=document.getElementById("input");
  const text=input.value.trim();
+
  if(!text)return;
+
  const box=document.getElementById("messages");
- box.innerHTML+=`<div class="message user"></div>`;
- box.lastElementChild.textContent=text;
- box.innerHTML+=`<div class="message bot">پیامت دریافت شد! برای پاسخ هوشمند باید سرور هوش مصنوعی متصل شود.</div>`;
+
+ const userMessage=document.createElement("div");
+ userMessage.className="message user";
+ userMessage.textContent=text;
+ box.appendChild(userMessage);
+
+ const botMessage=document.createElement("div");
+ botMessage.className="message bot";
+ botMessage.textContent=
+ "پیامت دریافت شد! برای پاسخ هوشمند باید مغز هوش مصنوعی به سرور متصل شود.";
+ box.appendChild(botMessage);
+
  input.value="";
  box.scrollTop=box.scrollHeight;
 }
+
+document.getElementById("input").addEventListener("keydown",function(event){
+ if(event.key==="Enter")sendMessage();
+});
 </script>
+
 </body>
 </html>
