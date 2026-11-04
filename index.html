@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101020">
-<meta name="description" content="INOW CHAT - همراه هوشمند شما">
 <title>INOW CHAT</title>
 
 <style>
 *{box-sizing:border-box}
-
 body{
  margin:0;
  font-family:Tahoma,sans-serif;
@@ -19,22 +17,23 @@ body{
  flex-direction:column;
  height:100vh;
 }
-
 header{
  background:#211b42;
- padding:20px;
+ padding:18px;
  text-align:center;
  font-size:25px;
  font-weight:bold;
  color:#b99aff;
 }
-
+#clear{
+ margin:10px;
+ background:#a33b55;
+}
 #messages{
  flex:1;
  overflow:auto;
  padding:15px;
 }
-
 .message{
  padding:13px;
  margin:10px 0;
@@ -43,24 +42,14 @@ header{
  line-height:1.8;
  overflow-wrap:anywhere;
 }
-
-.user{
- background:#6846b9;
- margin-right:auto;
-}
-
-.bot{
- background:#292943;
- margin-left:auto;
-}
-
+.user{background:#6846b9;margin-right:auto}
+.bot{background:#292943;margin-left:auto}
 footer{
  display:flex;
  padding:12px;
  gap:8px;
  background:#211b42;
 }
-
 input{
  flex:1;
  min-width:0;
@@ -71,18 +60,12 @@ input{
  color:white;
  outline:none;
 }
-
 button{
  background:#8055e8;
  color:white;
  border:0;
  border-radius:12px;
  padding:12px 18px;
- cursor:pointer;
-}
-
-button:active{
- opacity:.8;
 }
 </style>
 </head>
@@ -91,12 +74,9 @@ button:active{
 
 <header>✨ INOW CHAT</header>
 
-<div id="messages">
-<div class="message bot">
-سلام! من آینو هستم؛ به INOW CHAT خوش اومدی! ✨
-چطور می‌تونم کمکت کنم؟
-</div>
-</div>
+<button id="clear" onclick="clearHistory()">پاک کردن تاریخچه گفتگو</button>
+
+<div id="messages"></div>
 
 <footer>
 <input id="input" placeholder="پیامت رو بنویس..." autocomplete="off">
@@ -104,32 +84,81 @@ button:active{
 </footer>
 
 <script>
-function sendMessage(){
- const input=document.getElementById("input");
- const text=input.value.trim();
+const box = document.getElementById("messages");
+const input = document.getElementById("input");
+const STORAGE_KEY = "inow_chat_history";
 
- if(!text)return;
+let history = [];
 
- const box=document.getElementById("messages");
-
- const userMessage=document.createElement("div");
- userMessage.className="message user";
- userMessage.textContent=text;
- box.appendChild(userMessage);
-
- const botMessage=document.createElement("div");
- botMessage.className="message bot";
- botMessage.textContent=
- "پیامت دریافت شد! برای پاسخ هوشمند باید مغز هوش مصنوعی به سرور متصل شود.";
- box.appendChild(botMessage);
-
- input.value="";
- box.scrollTop=box.scrollHeight;
+function saveHistory(){
+ try{
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+ }catch(error){
+  alert("ذخیره تاریخچه امکان‌پذیر نیست.");
+ }
 }
 
-document.getElementById("input").addEventListener("keydown",function(event){
- if(event.key==="Enter")sendMessage();
+function addMessage(type, text){
+ const message = document.createElement("div");
+ message.className = "message " + type;
+ message.textContent = text;
+ box.appendChild(message);
+ box.scrollTop = box.scrollHeight;
+}
+
+function loadHistory(){
+ try{
+  history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  if(!Array.isArray(history)) history = [];
+ }catch(error){
+  history = [];
+ }
+
+ if(history.length === 0){
+  history = [{
+   type:"bot",
+   text:"سلام! من آینو هستم. به INOW CHAT خوش اومدی! ✨"
+  }];
+  saveHistory();
+ }
+
+ history.forEach(item => addMessage(item.type, item.text));
+}
+
+function sendMessage(){
+ const text = input.value.trim();
+ if(!text) return;
+
+ history.push({type:"user", text:text});
+ addMessage("user", text);
+
+ const answer = "پیامت دریافت شد! برای پاسخ هوشمند باید مغز هوش مصنوعی به سرور متصل شود.";
+
+ history.push({type:"bot", text:answer});
+ addMessage("bot", answer);
+
+ saveHistory();
+ input.value = "";
+}
+
+function clearHistory(){
+ if(!confirm("مطمئنی می‌خوای تمام گفتگوها پاک بشن؟")) return;
+
+ history = [{
+  type:"bot",
+  text:"سلام! من آینو هستم. به INOW CHAT خوش اومدی! ✨"
+ }];
+
+ saveHistory();
+ box.innerHTML = "";
+ addMessage("bot", history[0].text);
+}
+
+input.addEventListener("keydown", function(event){
+ if(event.key === "Enter") sendMessage();
 });
+
+loadHistory();
 </script>
 
 </body>
